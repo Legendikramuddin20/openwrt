@@ -18,28 +18,23 @@ jobs:
           sudo apt-get clean
           df -h
 
-      # 1. Download official OpenWrt source code
-      - name: Checkout OpenWrt
+      # 1. Pull the official OpenWrt 24.10.7 source tree into the root directory
+      - name: Checkout Official OpenWrt
         uses: actions/checkout@v4
         with:
           repository: openwrt/openwrt
           ref: v24.10.7
 
-      # 2. Download YOUR repository (where your workflow and modified DTS live)
+      # 2. Pull YOUR repository into a separate subfolder named 'openwrt'
       - name: Checkout Your Custom Repo
         uses: actions/checkout@v4
         with:
-          path: my-custom-repo
+          path: openwrt
 
-      # 3. Inject your modified DTS file into OpenWrt's source code
+      # 3. Copy using your exact path straight into the official OpenWrt build tree
       - name: Inject Custom DTS
         run: |
-          # ADJUST THIS LINE: If your file is in the root of your repo, use this:
-          cp my-custom-repo/mt7621_tplink_re650-v2.dts target/linux/ramips/dts/mt7621_tplink_re650-v2.dts
-          
-          # NOTE: If your repository mimics the OpenWrt folder structure exactly, 
-          # comment out the line above (add #) and uncomment the line below:
-          # cp my-custom-repo/target/linux/ramips/dts/mt7621_tplink_re650-v2.dts target/linux/ramips/dts/mt7621_tplink_re650-v2.dts
+          cp openwrt/target/linux/ramips/dts/mt7621_tplink_re650-v2.dts target/linux/ramips/dts/mt7621_tplink_re650-v2.dts
 
       - name: Install dependencies
         run: |
@@ -56,6 +51,7 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
+      # 4. Your original, un-modified configuration block
       - name: Configure
         run: |
           echo "CONFIG_TARGET_ramips=y" > .config
