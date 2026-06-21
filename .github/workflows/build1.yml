@@ -18,11 +18,28 @@ jobs:
           sudo apt-get clean
           df -h
 
-      - name: Checkout
+      # 1. Download official OpenWrt source code
+      - name: Checkout OpenWrt
         uses: actions/checkout@v4
         with:
           repository: openwrt/openwrt
           ref: v24.10.7
+
+      # 2. Download YOUR repository (where your workflow and modified DTS live)
+      - name: Checkout Your Custom Repo
+        uses: actions/checkout@v4
+        with:
+          path: my-custom-repo
+
+      # 3. Inject your modified DTS file into OpenWrt's source code
+      - name: Inject Custom DTS
+        run: |
+          # ADJUST THIS LINE: If your file is in the root of your repo, use this:
+          cp my-custom-repo/mt7621_tplink_re650-v2.dts target/linux/ramips/dts/mt7621_tplink_re650-v2.dts
+          
+          # NOTE: If your repository mimics the OpenWrt folder structure exactly, 
+          # comment out the line above (add #) and uncomment the line below:
+          # cp my-custom-repo/target/linux/ramips/dts/mt7621_tplink_re650-v2.dts target/linux/ramips/dts/mt7621_tplink_re650-v2.dts
 
       - name: Install dependencies
         run: |
